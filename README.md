@@ -1,17 +1,93 @@
-# flutter_application_naissancechain
+# NaissanceChain
 
-A new Flutter project.
+## Description de la solution
 
-## Getting Started
+NaissanceChain est une application numérique de registre civil conçue pour le contexte guinéen. Elle permet d’enregistrer les naissances, de générer un identifiant national unique pour chaque acte, puis de produire un QR code de vérification utilisable par les familles, les écoles et les hôpitaux.
 
-This project is a starting point for a Flutter application.
+Le principe est simple : les données personnelles de l’enfant et des parents sont conservées hors blockchain, tandis que la blockchain sert uniquement de preuve d’authenticité grâce à un identifiant d’acte, une empreinte numérique et un horodatage. Cette approche renforce la confiance, limite les risques de falsification et respecte mieux la confidentialité des informations.
 
-A few resources to get you started if this is your first Flutter project:
+L’application a été pensée pour être claire, accessible et utilisable sur mobile comme sur web. Elle distingue les besoins de plusieurs profils d’utilisateurs : agent d’enregistrement, famille, et structure de contrôle comme une école ou un hôpital.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+NaissanceChain est également conçu selon une logique offline-first : les opérations essentielles peuvent être préparées et gérées avec une dépendance réduite à la connexion, ce qui est adapté aux contextes où l’accès au réseau n’est pas toujours stable.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Technologies utilisées
+
+- Flutter pour le développement mobile et web
+- Dart comme langage principal
+- Provider pour la gestion de l’état et des services
+- QR code pour la consultation et la vérification rapide
+- Scanner de QR code pour la lecture depuis un appareil mobile
+- Cryptographie SHA-256 pour l’empreinte numérique des actes
+- PDF et printing pour la génération et le partage d’extraits
+- UUID pour la création d’identifiants uniques
+
+## Sécurité et confidentialité
+
+NaissanceChain a été conçu pour protéger la vie privée des citoyens. Les données personnelles complètes de l’enfant et des parents ne sont pas enregistrées sur la blockchain. Celle-ci conserve uniquement la preuve d’authenticité de l’acte, sous forme d’identifiant, d’empreinte numérique et d’horodatage.
+
+Cette séparation entre les données sensibles et la preuve blockchain limite les risques d’exposition d’informations personnelles tout en permettant une vérification fiable des actes par les autorités et les structures de contrôle.
+
+## Fonctionnalités principales
+
+- Enregistrement numérique d’un acte de naissance par un agent habilité
+- Génération d’un identifiant national unique au format guinéen
+- Création d’un QR code qui ne contient que l’identifiant de l’acte
+- Vérification de l’authenticité d’un acte à partir de la blockchain
+- Consultation de l’extrait de naissance par la famille
+- Téléchargement et partage d’un extrait au format PDF
+- Contrôle rapide par les écoles et les hôpitaux grâce au QR code
+- Séparation claire des rôles et des accès selon le profil utilisateur
+- Conservation des données personnelles hors blockchain
+
+## Instructions d’installation
+
+### Prérequis
+
+- Flutter installé sur la machine
+- Un environnement prêt pour exécuter une application Flutter sur mobile ou web
+
+### Installation du projet
+
+1. Cloner le dépôt sur votre machine.
+2. Ouvrir le dossier du projet `flutter_application_naissancechain`.
+3. Installer les dépendances avec la commande :
+
+```bash
+flutter pub get
+```
+
+### Lancement de l’application
+
+Pour exécuter l’application sur le web :
+
+```bash
+flutter run -d chrome
+```
+
+Pour exécuter l’application sur un appareil mobile ou un émulateur connecté :
+
+```bash
+flutter run
+```
+
+Pour générer une version web prête au déploiement :
+
+```bash
+flutter build web
+```
+
+## Instructions d’utilisation
+
+1. Ouvrir l’application.
+2. Choisir le rôle souhaité depuis l’écran d’accueil.
+3. Pour un agent, accéder à l’enregistrement et saisir les informations de naissance.
+4. Le système génère un identifiant unique et un QR code associé.
+5. Pour une famille, consulter l’acte à partir de l’identifiant et obtenir un extrait PDF.
+6. Pour une école ou un hôpital, scanner le QR code ou saisir l’identifiant afin de vérifier l’authenticité de l’acte.
+7. La vérification repose sur la correspondance entre l’acte enregistré et sa preuve blockchain.
+
+## Contexte du hackathon
+
+NaissanceChain a été développé dans le cadre du MIABE Hackathon 2026 – Phase 2 (Demi-finale), pour répondre à un besoin concret de modernisation du registre civil en Guinée.
+
+L’objectif du projet est de proposer une solution crédible, simple à comprendre et orientée usage, capable de faciliter l’enregistrement des naissances, d’améliorer la vérification des actes et de renforcer la confiance entre les administrations, les familles et les établissements qui contrôlent les documents d’identité.
