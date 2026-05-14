@@ -63,7 +63,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
     final firebaseService = context.read<FirebaseService>();
     final blockchainService = context.read<BlockchainService>();
 
-    final acte = firebaseService.getActe(acteId);
+    // Chercher l'acte depuis Firestore (persistance)
+    final acte = await firebaseService.getActeById(acteId);
     if (acte == null) {
       if (!mounted) {
         return;
@@ -106,10 +107,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
       return;
     }
 
-      setState(() {
+    setState(() {
       _statusMessage = isValidQr
-        ? 'QR détecté, vérification en cours...'
-        : 'QR non valide: le format attendu est GN-YYYY-XXXXXXXX.';
+          ? 'QR détecté, vérification en cours...'
+          : 'QR non valide: le format attendu est GN-YYYY-XXXXXXXX.';
       _foundActe = null;
       _isVerificationSuccessful = false;
     });
@@ -148,10 +149,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
         ),
         titleSpacing: 0,
         actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: _FlagBadge(),
-          ),
+          Padding(padding: EdgeInsets.only(right: 16), child: _FlagBadge()),
         ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
@@ -219,7 +217,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF9AA6B6),
                     ),
-                    prefixIcon: const Icon(Icons.edit_outlined, color: primaryBlue),
+                    prefixIcon: const Icon(
+                      Icons.edit_outlined,
+                      color: primaryBlue,
+                    ),
                     suffixIcon: _isVerifying
                         ? const Padding(
                             padding: EdgeInsets.all(14.0),
@@ -241,15 +242,24 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     contentPadding: const EdgeInsets.symmetric(vertical: 16),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4),
-                      borderSide: const BorderSide(color: Color(0xFF9AA6B6), width: 1.2),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF9AA6B6),
+                        width: 1.2,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4),
-                      borderSide: const BorderSide(color: Color(0xFF9AA6B6), width: 1.2),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF9AA6B6),
+                        width: 1.2,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4),
-                      borderSide: const BorderSide(color: primaryBlue, width: 1.5),
+                      borderSide: const BorderSide(
+                        color: primaryBlue,
+                        width: 1.5,
+                      ),
                     ),
                   ),
                 ),
@@ -266,12 +276,16 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       description:
                           'Ce document a été certifié conforme par la blockchain NaissanceChain au registre national.\n\nConcerne : ${_foundActe!.nomEnfant} ${_foundActe!.prenomEnfant}',
                       footerLeft: "VÉRIFIÉ PAR L'ÉTAT",
-                      footerRight: _foundActe?.blockchainHash != null && _foundActe!.blockchainHash!.length > 8
-                          ? '#${_foundActe!.blockchainHash!.substring(0, 4)}...${_foundActe!.blockchainHash!.substring(_foundActe!.blockchainHash!.length - 4)}'.toUpperCase()
+                      footerRight:
+                          _foundActe?.blockchainHash != null &&
+                              _foundActe!.blockchainHash!.length > 8
+                          ? '#${_foundActe!.blockchainHash!.substring(0, 4)}...${_foundActe!.blockchainHash!.substring(_foundActe!.blockchainHash!.length - 4)}'
+                                .toUpperCase()
                           : (_foundActe?.blockchainHash ?? ''),
                     )
-                  else if (_statusMessage == 'Veuillez saisir un identifiant d’acte.' ||
-                           _statusMessage == 'QR détecté, vérification en cours...')
+                  else if (_statusMessage ==
+                          'Veuillez saisir un identifiant d’acte.' ||
+                      _statusMessage == 'QR détecté, vérification en cours...')
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
@@ -282,7 +296,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.info_outline, color: Color(0xFF0D1B2A)),
+                          const Icon(
+                            Icons.info_outline,
+                            color: Color(0xFF0D1B2A),
+                          ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
@@ -408,7 +425,10 @@ extension on _VerificationScreenState {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _CornerFrame(color: Colors.black.withValues(alpha: 0.85)),
-                  _CornerFrame(color: Colors.black.withValues(alpha: 0.85), mirrored: true),
+                  _CornerFrame(
+                    color: Colors.black.withValues(alpha: 0.85),
+                    mirrored: true,
+                  ),
                 ],
               ),
             ),
@@ -419,8 +439,15 @@ extension on _VerificationScreenState {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _CornerFrame(color: Colors.black.withValues(alpha: 0.85), bottom: true),
-                  _CornerFrame(color: Colors.black.withValues(alpha: 0.85), bottom: true, mirrored: true),
+                  _CornerFrame(
+                    color: Colors.black.withValues(alpha: 0.85),
+                    bottom: true,
+                  ),
+                  _CornerFrame(
+                    color: Colors.black.withValues(alpha: 0.85),
+                    bottom: true,
+                    mirrored: true,
+                  ),
                 ],
               ),
             ),
@@ -435,9 +462,7 @@ extension on _VerificationScreenState {
                   color: Colors.white.withValues(alpha: 0.95),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  shadows: const [
-                    Shadow(color: Colors.black54, blurRadius: 4),
-                  ],
+                  shadows: const [Shadow(color: Colors.black54, blurRadius: 4)],
                 ),
               ),
             ),
@@ -571,7 +596,11 @@ class _CornerFrame extends StatelessWidget {
       width: 40,
       height: 40,
       child: CustomPaint(
-        painter: _CornerFramePainter(color: color, mirrored: mirrored, bottom: bottom),
+        painter: _CornerFramePainter(
+          color: color,
+          mirrored: mirrored,
+          bottom: bottom,
+        ),
       ),
     );
   }
@@ -582,7 +611,11 @@ class _CornerFramePainter extends CustomPainter {
   final bool mirrored;
   final bool bottom;
 
-  _CornerFramePainter({required this.color, required this.mirrored, required this.bottom});
+  _CornerFramePainter({
+    required this.color,
+    required this.mirrored,
+    required this.bottom,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -617,6 +650,8 @@ class _CornerFramePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _CornerFramePainter oldDelegate) {
-    return oldDelegate.color != color || oldDelegate.mirrored != mirrored || oldDelegate.bottom != bottom;
+    return oldDelegate.color != color ||
+        oldDelegate.mirrored != mirrored ||
+        oldDelegate.bottom != bottom;
   }
 }

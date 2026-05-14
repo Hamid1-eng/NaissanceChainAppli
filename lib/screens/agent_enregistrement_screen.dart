@@ -24,6 +24,16 @@ class AgentEnregistrementScreen extends StatefulWidget {
 
 class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
   final _formKey = GlobalKey<FormState>();
+  static const List<String> _prefectures = [
+    'Conakry',
+    'Kindia',
+    'Labé',
+    'Kankan',
+    'N’Zérékoré',
+    'Boké',
+    'Mamou',
+    'Faranah',
+  ];
 
   final _nomEnfantController = TextEditingController();
   final _prenomEnfantController = TextEditingController();
@@ -43,6 +53,7 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
 
   String _acteId = '';
   bool _isSubmitting = false;
+  String? _selectedPrefecture;
   DateTime? _dateNaissance;
   DateTime? _dateNaissanceMere;
   DateTime? _dateNaissancePere;
@@ -144,6 +155,7 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
     _dateNaissance = null;
     _dateNaissanceMere = null;
     _dateNaissancePere = null;
+    _selectedPrefecture = null;
     setState(() {
       _acteId = '';
     });
@@ -151,9 +163,9 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
 
   void _clearAndReset() {
     _resetForm();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Formulaire vidé.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Formulaire vidé.')));
   }
 
   Future<void> _submitForm() async {
@@ -166,7 +178,9 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Veuillez remplir correctement tous les champs obligatoires.'),
+          content: Text(
+            'Veuillez remplir correctement tous les champs obligatoires.',
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -177,7 +191,19 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
     if (birthDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Veuillez sélectionner la date de naissance de l\'enfant.'),
+          content: Text(
+            'Veuillez sélectionner la date de naissance de l\'enfant.',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (_selectedPrefecture == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez sélectionner une préfecture.'),
           backgroundColor: Colors.red,
         ),
       );
@@ -219,9 +245,13 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
         empreinteEnfant: null,
         nomMere: _nomMereController.text.trim(),
         prenomMere: _prenomMereController.text.trim(),
-        professionMere: _professionMereController.text.trim().isEmpty ? null : _professionMereController.text.trim(),
+        professionMere: _professionMereController.text.trim().isEmpty
+            ? null
+            : _professionMereController.text.trim(),
         ninMere: 'NA',
-        nationaliteMere: _nationaliteMereController.text.trim().isEmpty ? null : _nationaliteMereController.text.trim(),
+        nationaliteMere: _nationaliteMereController.text.trim().isEmpty
+            ? null
+            : _nationaliteMereController.text.trim(),
         dateNaissanceMere: _dateNaissanceMere,
         nomPere: _nomPereController.text.trim().isEmpty
             ? null
@@ -233,10 +263,13 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
             ? null
             : _professionPereController.text.trim(),
         ninPere: 'NA',
-        nationalitePere: _nationalitePereController.text.trim().isEmpty ? null : _nationalitePereController.text.trim(),
+        nationalitePere: _nationalitePereController.text.trim().isEmpty
+            ? null
+            : _nationalitePereController.text.trim(),
         dateNaissancePere: _dateNaissancePere,
         ville: _villeController.text.trim(),
         secteur: _secteurController.text.trim(),
+        prefecture: _selectedPrefecture,
         agentName: widget.agentName ?? 'Drame Moussa',
         dateEnregistrement: dateEnregistrement,
         blockchainHash: blockchainHash,
@@ -247,10 +280,7 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
 
       debugPrint('[AgentEnregistrement] ⏳ Enregistrement blockchain...');
       final blockchainSuccess = await blockchainService
-          .recordActe(
-            acte.id,
-            dateEnregistrement,
-          )
+          .recordActe(acte.id, dateEnregistrement)
           .timeout(
             const Duration(seconds: 6),
             onTimeout: () {
@@ -258,7 +288,9 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
               return false;
             },
           );
-      debugPrint('[AgentEnregistrement] ✓ Blockchain enregistrée: $blockchainSuccess');
+      debugPrint(
+        '[AgentEnregistrement] ✓ Blockchain enregistrée: $blockchainSuccess',
+      );
 
       if (!blockchainSuccess) {
         if (!mounted) {
@@ -266,7 +298,9 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
         }
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('La validation blockchain a expiré. Veuillez réessayer.'),
+            content: Text(
+              'La validation blockchain a expiré. Veuillez réessayer.',
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -297,6 +331,7 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
               dateNaissancePere: acte.dateNaissancePere,
               ville: acte.ville,
               secteur: acte.secteur,
+              prefecture: acte.prefecture,
               agentName: acte.agentName,
               dateEnregistrement: acte.dateEnregistrement,
               blockchainHash: acte.blockchainHash,
@@ -320,8 +355,13 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
 
       if (saved) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        await firebaseService.recordActeStat(
+          idActe: acte.id,
+          prefecture: acte.prefecture ?? '',
+          dateEnregistrement: dateEnregistrement,
+        );
         debugPrint('[AgentEnregistrement] 🎉 Retour succès affiché');
-        
+
         if (mounted) {
           showDialog(
             context: context,
@@ -329,7 +369,9 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
             builder: (dialogContext) => AlertDialog(
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               title: Column(
                 children: const [
                   Icon(Icons.check_circle, color: Colors.green, size: 54),
@@ -338,7 +380,7 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
                     'Acte enregistré\navec succès',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontWeight: FontWeight.w900, 
+                      fontWeight: FontWeight.w900,
                       fontSize: 22,
                       color: Color(0xFF0D1B2A),
                       height: 1.1,
@@ -371,7 +413,10 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE4EAF1), width: 2),
+                        border: Border.all(
+                          color: const Color(0xFFE4EAF1),
+                          width: 2,
+                        ),
                       ),
                       child: BarcodeWidget(
                         barcode: Barcode.qrCode(),
@@ -394,7 +439,11 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
                 ),
               ),
               actionsAlignment: MainAxisAlignment.center,
-              actionsPadding: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
+              actionsPadding: const EdgeInsets.only(
+                bottom: 24,
+                left: 16,
+                right: 16,
+              ),
               actions: [
                 SizedBox(
                   width: double.infinity,
@@ -413,7 +462,10 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
                     },
                     child: const Text(
                       'Fermer et créer un autre acte',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -483,6 +535,16 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
     );
   }
 
+  String? _validatePrefecture(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'La préfecture est obligatoire';
+    }
+    if (!_prefectures.contains(value)) {
+      return 'Veuillez sélectionner une préfecture valide';
+    }
+    return null;
+  }
+
   Widget _buildSectionCard({
     required Widget title,
     required List<Widget> children,
@@ -496,11 +558,7 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          title,
-          const SizedBox(height: 16),
-          ...children,
-        ],
+        children: [title, const SizedBox(height: 16), ...children],
       ),
     );
   }
@@ -560,10 +618,7 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
             ],
           ),
           actions: const [
-            Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: _AgentBadge(),
-            ),
+            Padding(padding: EdgeInsets.only(right: 16), child: _AgentBadge()),
           ],
           bottom: const PreferredSize(
             preferredSize: Size.fromHeight(1),
@@ -593,18 +648,18 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
                 const Text(
                   'Veuillez renseigner les informations légales\npour la création de l\'acte de naissance\nsécurisé sur la blockchain NaissanceChain.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 15,
-                    height: 1.45,
-                    color: muted,
-                  ),
+                  style: TextStyle(fontSize: 15, height: 1.45, color: muted),
                 ),
                 const SizedBox(height: 22),
                 _buildSectionCard(
                   title: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
-                      Icon(Icons.child_care_outlined, size: 26, color: primaryBlue),
+                      Icon(
+                        Icons.child_care_outlined,
+                        size: 26,
+                        color: primaryBlue,
+                      ),
                       SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -657,9 +712,15 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(2),
-                          borderSide: const BorderSide(color: primaryBlue, width: 1.5),
+                          borderSide: const BorderSide(
+                            color: primaryBlue,
+                            width: 1.5,
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 14,
+                        ),
                       ),
                       items: const [
                         DropdownMenuItem(value: 'F', child: Text('Féminin')),
@@ -680,6 +741,46 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
                       controller: _secteurController,
                       label: 'Secteur ou quartier',
                       validator: _requiredValidator,
+                    ),
+                    const SizedBox(height: 14),
+                    _buildLabel('Préfecture'),
+                    DropdownButtonFormField<String>(
+                      initialValue: _selectedPrefecture,
+                      decoration: InputDecoration(
+                        hintText: 'Sélectionner une préfecture',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(2),
+                          borderSide: const BorderSide(color: border),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(2),
+                          borderSide: const BorderSide(
+                            color: primaryBlue,
+                            width: 1.5,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 14,
+                        ),
+                      ),
+                      items: _prefectures
+                          .map(
+                            (prefecture) => DropdownMenuItem<String>(
+                              value: prefecture,
+                              child: Text(prefecture),
+                            ),
+                          )
+                          .toList(),
+                      validator: _validatePrefecture,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedPrefecture = value;
+                        });
+                      },
                     ),
                   ],
                 ),
@@ -827,7 +928,9 @@ class _AgentEnregistrementScreenState extends State<AgentEnregistrementScreen> {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.5,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
                                   ),
                                 )
                               : const Text(

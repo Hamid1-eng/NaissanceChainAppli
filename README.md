@@ -37,8 +37,46 @@ Cette séparation entre les données sensibles et la preuve blockchain limite le
 - Téléchargement et partage d’un extrait au format PDF
 - Contrôle rapide par les écoles et les hôpitaux grâce au QR code
 - Séparation claire des rôles et des accès selon le profil utilisateur
-- Conservation des données personnelles hors blockchain
+- Conservation des données personnelles hors blockchain- **[NOUVEAU]** Tableau de bord national avec carte interactive de la Guinée
+- **[NOUVEAU]** Visualisation en temps réel de la couverture par préfecture
+- **[NOUVEAU]** Modal détaillé au clic sur chaque zone (statut, taux, actes)
 
+## Tableau de Bord National - Carte Interactive
+
+Le dashboard national affiche une vue d'ensemble de la couverture d'enregistrement des naissances à travers tout le pays.
+
+### Fonctionnalités
+- **Carte stylisée de la Guinée** avec 8 zones (préfectures)
+- **Zones cliquables** pour afficher les détails détaillés
+- **Code couleur dynamique** :
+  - 🟢 **Vert** = Bon (taux ≥ 70%)
+  - 🟡 **Jaune** = Moyen (35-69%)
+  - 🔴 **Rouge** = Faible (< 35%)
+  - ⚪ **Gris** = Sans données
+- **Modal au clic** affichant :
+  - Nom de la préfecture
+  - Nombre d'actes enregistrés
+  - Taux de couverture (%)
+  - Statut (Bon/Moyen/Faible)
+- **Hover effects** (desktop) pour meilleure UX
+- **Données en temps réel** depuis Firestore
+- **Offline-first** : fonctionne sans connexion
+
+### Accès au Dashboard
+1. Utiliser le rôle **"Accès administrateur"** depuis l'écran d'accueil
+2. Accéder au **"Tableau de bord national"**
+3. Visualiser les KPIs et la carte
+4. Cliquer sur une zone pour voir les détails
+5. Rafraîchir pour mettre à jour les données (swipe down)
+
+### Architecture
+- **Widget**: `GuineaInteractiveMap` (lib/widgets/guinea_interactive_map.dart)
+- **Services**: `FirebaseService.getActesCountByPrefecture()`
+- **Données**: Collection Firestore `actes_stats` (id_acte, prefecture, date)
+- **State**: Gestion locale avec StatefulWidget
+- **Performance**: Stack + Positioned optimisés
+
+Pour plus de détails, voir [DASHBOARD_INTERACTIVE_MAP_GUIDE.md](DASHBOARD_INTERACTIVE_MAP_GUIDE.md).
 ## Instructions d’installation
 
 ### Prérequis

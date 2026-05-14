@@ -42,33 +42,57 @@ class _FamilleScreenState extends State<FamilleScreen> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _scanQrCode() {
     _showMessage('Scanneur QR à connecter sur l’écran famille.');
   }
 
-  void _consultExtract() {
+  void _consultExtract() async {
     final query = _idQueryController.text.trim();
     if (query.isEmpty) {
       _showMessage('Veuillez saisir l\'identifiant de l\'acte.');
       return;
     }
-    final firebaseService = context.read<FirebaseService>();
-    final acte = firebaseService.getActe(query);
-    if (acte == null) {
-      _showMessage('Aucun acte trouvé pour cet identifiant.');
-      return;
+
+    // Montrer un loader
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      // Chercher l'acte depuis Firestore (persistance complète)
+      final firebaseService = context.read<FirebaseService>();
+      final acte = await firebaseService.getActeById(query);
+
+      if (!mounted) return;
+      Navigator.pop(context); // Fermer le loader
+
+      if (acte == null) {
+        _showMessage('Aucun acte trouvé pour cet identifiant.');
+        return;
+      }
+      setState(() {
+        _selectedActe = acte;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context); // Fermer le loader
+      _showMessage('Erreur lors de la recherche: $e');
     }
-    setState(() {
-      _selectedActe = acte;
-    });
   }
 
   ActeNaissance? get _activeActe => _selectedActe;
 
-  Future<void> _downloadExtract(BuildContext context, ActeNaissance? acte) async {
+  Future<void> _downloadExtract(
+    BuildContext context,
+    ActeNaissance? acte,
+  ) async {
     if (acte == null) {
       _showMessage('Aucun acte disponible à télécharger.');
       return;
@@ -183,8 +207,6 @@ class _FamilleScreenState extends State<FamilleScreen> {
     );
   }
 
-
-
   String _displayDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
@@ -211,10 +233,7 @@ class _FamilleScreenState extends State<FamilleScreen> {
           ),
         ),
         actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: _FlagBadge(),
-          ),
+          Padding(padding: EdgeInsets.only(right: 16), child: _FlagBadge()),
         ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
@@ -261,10 +280,16 @@ class _FamilleScreenState extends State<FamilleScreen> {
                 style: const TextStyle(fontSize: 18),
                 decoration: InputDecoration(
                   hintText: "Entrez l'identifiant",
-                  hintStyle: const TextStyle(fontSize: 18, color: Color(0xFF7B8796)),
+                  hintStyle: const TextStyle(
+                    fontSize: 18,
+                    color: Color(0xFF7B8796),
+                  ),
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 18,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(2),
                     borderSide: const BorderSide(color: Color(0xFFC7CFDA)),
@@ -320,7 +345,9 @@ class _FamilleScreenState extends State<FamilleScreen> {
               const SizedBox(height: 18),
               Row(
                 children: const [
-                  Expanded(child: Divider(color: Color(0xFFC9D1DC), thickness: 1)),
+                  Expanded(
+                    child: Divider(color: Color(0xFFC9D1DC), thickness: 1),
+                  ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 14),
                     child: Text(
@@ -332,7 +359,9 @@ class _FamilleScreenState extends State<FamilleScreen> {
                       ),
                     ),
                   ),
-                  Expanded(child: Divider(color: Color(0xFFC9D1DC), thickness: 1)),
+                  Expanded(
+                    child: Divider(color: Color(0xFFC9D1DC), thickness: 1),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -340,7 +369,11 @@ class _FamilleScreenState extends State<FamilleScreen> {
                 height: 58,
                 child: OutlinedButton.icon(
                   onPressed: _scanQrCode,
-                  icon: const Icon(Icons.qr_code_2, color: Color(0xFF0D1B2A), size: 26),
+                  icon: const Icon(
+                    Icons.qr_code_2,
+                    color: Color(0xFF0D1B2A),
+                    size: 26,
+                  ),
                   label: const Text(
                     "Scanner le QR code de l'acte",
                     style: TextStyle(
@@ -350,7 +383,10 @@ class _FamilleScreenState extends State<FamilleScreen> {
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF1F2937), width: 1.1),
+                    side: const BorderSide(
+                      color: Color(0xFF1F2937),
+                      width: 1.1,
+                    ),
                     backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(2),
@@ -457,7 +493,10 @@ class _FamilyPreviewCard extends StatelessWidget {
                 child: Text(
                   sampleName,
                   textAlign: TextAlign.right,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -475,7 +514,10 @@ class _FamilyPreviewCard extends StatelessWidget {
                 child: Text(
                   sampleDate,
                   textAlign: TextAlign.right,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -493,7 +535,10 @@ class _FamilyPreviewCard extends StatelessWidget {
                 child: Text(
                   samplePlace,
                   textAlign: TextAlign.right,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -577,7 +622,11 @@ class _FlagBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFFD1D5DB)),
         boxShadow: const [
-          BoxShadow(color: Color(0x0C0A1A2F), blurRadius: 6, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Color(0x0C0A1A2F),
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
         ],
       ),
       child: Center(

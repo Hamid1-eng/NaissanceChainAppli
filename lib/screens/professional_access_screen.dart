@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'verification_screen.dart';
+import 'admin_access_screen.dart';
 
 class ProfessionalAccessScreen extends StatefulWidget {
   const ProfessionalAccessScreen({super.key});
@@ -21,6 +22,15 @@ class _ProfessionalAccessScreenState extends State<ProfessionalAccessScreen> {
   }
 
   void _continue() {
+    // If admin selected, go directly to admin access screen (demo code entry there)
+    if (_selectedRole == 'admin') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AdminAccessScreen()),
+      );
+      return;
+    }
+
     final identity = _identityController.text.trim();
     if (identity.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -54,10 +64,7 @@ class _ProfessionalAccessScreenState extends State<ProfessionalAccessScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: _GuineanFlag(),
-          ),
+          Padding(padding: const EdgeInsets.all(8.0), child: _GuineanFlag()),
         ],
       ),
       body: SafeArea(
@@ -107,6 +114,17 @@ class _ProfessionalAccessScreenState extends State<ProfessionalAccessScreen> {
                 isSelected: _selectedRole == 'verification',
                 onTap: () {
                   setState(() => _selectedRole = 'verification');
+                },
+              ),
+              const SizedBox(height: 12),
+              // Carte Administration nationale
+              _RoleCard(
+                icon: Icons.account_balance,
+                title: 'Administration nationale',
+                subtitle: 'Ministère de l\'Etat civil',
+                isSelected: _selectedRole == 'admin',
+                onTap: () {
+                  setState(() => _selectedRole = 'admin');
                 },
               ),
               const SizedBox(height: 24),
@@ -162,10 +180,7 @@ class _ProfessionalAccessScreenState extends State<ProfessionalAccessScreen> {
                 ),
                 child: const Text(
                   'Continuer →',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
               ),
               const SizedBox(height: 24),
@@ -268,7 +283,9 @@ class _RoleCard extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? const Color(0xFF0A1A2F) : const Color(0xFFE2E8F0),
+              color: isSelected
+                  ? const Color(0xFF0A1A2F)
+                  : const Color(0xFFE2E8F0),
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -278,7 +295,9 @@ class _RoleCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF0A1A2F) : const Color(0xFFF3F4F6),
+                  color: isSelected
+                      ? const Color(0xFF0A1A2F)
+                      : const Color(0xFFF3F4F6),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -313,7 +332,9 @@ class _RoleCard extends StatelessWidget {
               ),
               Icon(
                 Icons.chevron_right,
-                color: isSelected ? const Color(0xFF0A1A2F) : const Color(0xFFD1D5DB),
+                color: isSelected
+                    ? const Color(0xFF0A1A2F)
+                    : const Color(0xFFD1D5DB),
               ),
             ],
           ),
@@ -329,9 +350,7 @@ class _GuineanFlag extends StatelessWidget {
     return Container(
       width: 36,
       height: 24,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(4),
         child: Stack(

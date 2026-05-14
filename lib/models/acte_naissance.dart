@@ -32,6 +32,7 @@ class ActeNaissance {
   // Localisation administrative
   final String? ville;
   final String? secteur;
+  final String? prefecture;
 
   // Agent qui a enregistré la naissance
   final String agentName;
@@ -64,6 +65,7 @@ class ActeNaissance {
     this.dateNaissancePere,
     this.ville,
     this.secteur,
+    this.prefecture,
     required this.agentName,
     required this.dateEnregistrement,
     this.blockchainHash,
@@ -94,6 +96,7 @@ class ActeNaissance {
       'dateNaissancePere': dateNaissancePere?.toIso8601String(),
       'ville': ville,
       'secteur': secteur,
+      'prefecture': prefecture,
       'agentName': agentName,
       'dateEnregistrement': dateEnregistrement.toIso8601String(),
       'blockchainHash': blockchainHash,
@@ -131,6 +134,7 @@ class ActeNaissance {
           : null,
       ville: json['ville'],
       secteur: json['secteur'],
+      prefecture: json['prefecture'],
       agentName: json['agentName'] ?? '',
       dateEnregistrement: DateTime.parse(
         json['dateEnregistrement'] ?? DateTime.now().toIso8601String(),
